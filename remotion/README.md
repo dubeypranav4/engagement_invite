@@ -22,10 +22,12 @@ Opens the Remotion Studio in your browser to scrub the timeline live.
 ## Render the MP4
 
 ```bash
-npm run build      # -> out/invite.mp4
+npm run build      # -> ../assets/invite.mp4
 ```
 
-Output is a 1080×1920 (vertical) 9-second video at 30fps.
+Output is a 1080×1920 (vertical) 9-second video at 30fps, written to the
+repo-level `assets/` folder so you can drop it anywhere (WhatsApp, a webpage,
+etc.). The rendered `assets/invite.mp4` is committed to the repo.
 
 ## Configure
 

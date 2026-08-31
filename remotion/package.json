@@ -4,7 +4,7 @@
   "description": "Remotion video version of the engagement invitation",
   "scripts": {
     "start": "remotion studio",
-    "build": "remotion render EngagementInvite out/invite.mp4",
+    "build": "remotion render EngagementInvite ../assets/invite.mp4",
     "upgrade": "remotion upgrade"
   },
   "dependencies": {

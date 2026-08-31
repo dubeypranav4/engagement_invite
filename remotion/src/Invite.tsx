@@ -38,18 +38,84 @@ const Rings: React.FC = () => {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
     });
+
+  // Diamond pops in once the bands have drawn (~1.2s), with a little overshoot.
+  const gemT = interpolate(frame, [1.2 * fps, 1.9 * fps], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const gemScale = interpolate(gemT, [0, 0.7, 1], [0.2, 1.12, 1]);
+  const gemOpacity = interpolate(gemT, [0, 0.3], [0, 1], {
+    extrapolateRight: "clamp",
+  });
+
+  // Sparkle twinkle after the gem is set.
+  const twinkle = interpolate(
+    Math.sin((frame - 2 * fps) * 0.35),
+    [-1, 1],
+    [0.15, 1]
+  );
+  const sparkleOn = frame > 2 * fps ? 1 : 0;
+
   return (
-    <svg width={260} height={150} viewBox="0 0 120 70" style={{ marginBottom: 30 }}>
+    <svg width={300} height={230} viewBox="0 0 140 110" style={{ marginBottom: 24 }}>
+      <defs>
+        <linearGradient id="gem" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FFFDF8" />
+          <stop offset="55%" stopColor={P.gold} stopOpacity={0.55} />
+          <stop offset="100%" stopColor={P.gold} stopOpacity={0.85} />
+        </linearGradient>
+      </defs>
+
+      {/* Two interlocking bands */}
       <circle
-        cx="46" cy="35" r="26"
+        cx="54" cy="72" r="26"
         fill="none" stroke={P.gold} strokeWidth={2.4} strokeLinecap="round"
         strokeDasharray={dash} strokeDashoffset={draw(0)}
       />
       <circle
-        cx="74" cy="35" r="26"
+        cx="86" cy="72" r="26"
         fill="none" stroke={P.gold} strokeWidth={2.4} strokeLinecap="round"
         strokeDasharray={dash} strokeDashoffset={draw(0.5)}
       />
+
+      {/* Prongs holding the solitaire on the front band */}
+      <g stroke={P.gold} strokeWidth={2} strokeLinecap="round" opacity={gemOpacity}>
+        <line x1="80" y1="47" x2="82" y2="38" />
+        <line x1="92" y1="47" x2="90" y2="38" />
+      </g>
+
+      {/* Solitaire diamond, set at 12 o'clock on the front band */}
+      <g
+        transform={`translate(86 33) scale(${gemScale})`}
+        opacity={gemOpacity}
+      >
+        {/* gem body */}
+        <path
+          d="M -8 -6 L 8 -6 L 12 0 L 0 12 L -12 0 Z"
+          fill="url(#gem)"
+          stroke={P.gold}
+          strokeWidth={1.4}
+          strokeLinejoin="round"
+        />
+        {/* facets */}
+        <g stroke={P.gold} strokeWidth={0.9} opacity={0.85} fill="none">
+          <path d="M -12 0 L 12 0" />
+          <path d="M 0 -6 L -12 0" />
+          <path d="M 0 -6 L 12 0" />
+          <path d="M -8 -6 L 0 12" />
+          <path d="M 8 -6 L 0 12" />
+          <path d="M 0 -6 L 0 12" />
+        </g>
+      </g>
+
+      {/* Sparkle */}
+      <g opacity={sparkleOn * twinkle} fill="#FFFDF8">
+        <path
+          transform="translate(100 22)"
+          d="M 0 -6 Q 0.8 -0.8 6 0 Q 0.8 0.8 0 6 Q -0.8 0.8 -6 0 Q -0.8 -0.8 0 -6 Z"
+        />
+      </g>
     </svg>
   );
 };
