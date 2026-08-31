@@ -138,6 +138,46 @@
     letter-spacing:0.02em;
   }
 
+  .actions{
+    display:flex;
+    gap:14px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:26px;
+    opacity:0;
+    animation:riseIn 0.9s ease-out forwards;
+    animation-delay:4.3s;
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Jost',sans-serif;
+    font-weight:400;
+    font-size:13px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    text-decoration:none;
+    cursor:pointer;
+    padding:11px 20px;
+    border:1px solid var(--gold);
+    border-radius:2px;
+    background:transparent;
+    color:var(--charcoal);
+    transition:background 0.25s ease, color 0.25s ease;
+  }
+  .btn:hover{
+    background:var(--gold);
+    color:var(--ivory);
+  }
+  .btn svg{
+    width:15px;
+    height:15px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:1.6;
+  }
+
   .closing{
     margin-top:30px;
     font-family:'Cormorant Garamond',serif;
@@ -146,7 +186,7 @@
     color:var(--rose);
     opacity:0;
     animation:riseIn 0.9s ease-out forwards;
-    animation-delay:4.6s;
+    animation-delay:4.9s;
   }
 
   @keyframes riseIn{
@@ -183,12 +223,84 @@
 
     <div class="details">
       <div class="date">Sunday, the 18th of October</div>
-      <div class="venue">Eleven in the morning &middot; Venue to be shared</div>
+      <div class="venue" id="venueLine">Eleven in the morning</div>
+    </div>
+
+    <div class="actions">
+      <a class="btn" id="mapBtn" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 21s-7-6.4-7-11a7 7 0 0 1 14 0c0 4.6-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        View on Map
+      </a>
+      <button class="btn" id="calBtn" type="button">
+        <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>
+        Save to Calendar
+      </button>
     </div>
 
     <p class="closing">With love, we hope you'll be there</p>
   </div>
-  <div class="edit-hint">edit names / date / venue in the code</div>
+  <div class="edit-hint">edit details in the CONFIG block in the code</div>
 </div>
+
+<script>
+  /* ===== Configure your event here ===== */
+  const CONFIG = {
+    eventTitle:   "Pranav & Shanu — Engagement",
+    venueName:    "Amar Vatika",
+    venueAddress: "Ambala Rd, near Badi Nahar, Saharanpur, Sheikhwala, Uttar Pradesh 247001",
+    venueMapUrl:  "https://www.google.com/maps/place/Amar+Vatika+%7C%7C+AC+Banquet+HALL%7C%7C/data=!4m2!3m1!1s0x0:0xaacba4ff661e4da6?sa=X&ved=1t:2428&ictx=111",
+    // Start time WITH timezone offset (IST is +05:30). End time defaults to +6 hours.
+    eventStart:   "2026-10-18T11:00:00+05:30",
+    durationHours: 6,
+  };
+  /* ===================================== */
+
+  // Venue: link + label
+  const mapBtn = document.getElementById("mapBtn");
+  mapBtn.href = CONFIG.venueMapUrl;
+  document.getElementById("venueLine").innerHTML =
+    "Eleven in the morning &middot; " + CONFIG.venueName;
+
+  // Build & download an .ics calendar event
+  function pad(n){ return String(n).padStart(2, "0"); }
+  function toICSDate(d){
+    return d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate())
+      + "T" + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + "Z";
+  }
+  function icsEscape(s){
+    return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n");
+  }
+  document.getElementById("calBtn").addEventListener("click", function(){
+    const start = new Date(CONFIG.eventStart);
+    const end   = new Date(start.getTime() + CONFIG.durationHours * 3600 * 1000);
+    const ics = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//engagement-invite//EN",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "BEGIN:VEVENT",
+      "UID:" + start.getTime() + "@engagement-invite",
+      "DTSTAMP:" + toICSDate(new Date()),
+      "DTSTART:" + toICSDate(start),
+      "DTEND:" + toICSDate(end),
+      "SUMMARY:" + icsEscape(CONFIG.eventTitle),
+      "LOCATION:" + icsEscape(CONFIG.venueName + ", " + CONFIG.venueAddress),
+      "URL:" + icsEscape(CONFIG.venueMapUrl),
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\r\n");
+
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "engagement.ics";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+</script>
 </body>
 </html>
