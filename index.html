@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Engagement Invitation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#FAF3EC;
+    --charcoal:#332C28;
+    --rose:#B98079;
+    --gold:#C9A961;
+    --gold-soft:#DCC98F;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    background:var(--ivory);
+    overflow:hidden;
+  }
+  .stage{
+    position:relative;
+    width:100%;
+    height:100vh;
+    min-height:640px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(201,169,97,0.10), transparent 55%),
+      var(--ivory);
+  }
+  .frame{
+    width:min(560px, 88vw);
+    text-align:center;
+    padding:48px 32px;
+  }
+
+  /* Ring sketch */
+  .rings{
+    width:120px;
+    height:70px;
+    margin:0 auto 18px;
+    display:block;
+  }
+  .rings circle{
+    fill:none;
+    stroke:var(--gold);
+    stroke-width:2.4;
+    stroke-linecap:round;
+    stroke-dasharray:170;
+    stroke-dashoffset:170;
+    animation:draw 1.4s ease-out forwards;
+  }
+  .rings circle.c2{ animation-delay:0.5s; }
+
+  @keyframes draw{
+    to{ stroke-dashoffset:0; }
+  }
+
+  .eyebrow{
+    font-family:'Jost',sans-serif;
+    font-weight:400;
+    font-size:13px;
+    letter-spacing:0.28em;
+    color:var(--rose);
+    opacity:0;
+    transform:translateY(8px);
+    animation:riseIn 0.9s ease-out forwards;
+    animation-delay:1.6s;
+    margin:0 0 14px;
+  }
+
+  .names{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:500;
+    font-size:clamp(38px, 8vw, 58px);
+    line-height:1.08;
+    color:var(--charcoal);
+    margin:0;
+    opacity:0;
+    transform:translateY(14px);
+    animation:riseIn 1s ease-out forwards;
+    animation-delay:1.95s;
+  }
+  .names .amp{
+    font-style:italic;
+    color:var(--rose);
+    font-size:0.75em;
+    padding:0 6px;
+  }
+
+  .divider{
+    width:0;
+    height:1px;
+    background:var(--gold);
+    margin:24px auto;
+    animation:growLine 0.8s ease-out forwards;
+    animation-delay:2.9s;
+  }
+  @keyframes growLine{ to{ width:64px; } }
+
+  .invite-line{
+    font-family:'Jost',sans-serif;
+    font-weight:300;
+    font-size:16px;
+    letter-spacing:0.02em;
+    color:var(--charcoal);
+    opacity:0;
+    max-width:380px;
+    margin:0 auto 26px;
+    line-height:1.6;
+    animation:riseIn 0.9s ease-out forwards;
+    animation-delay:3.3s;
+  }
+
+  .details{
+    font-family:'Jost',sans-serif;
+    opacity:0;
+    animation:riseIn 0.9s ease-out forwards;
+    animation-delay:3.9s;
+  }
+  .details .date{
+    font-size:22px;
+    font-weight:500;
+    color:var(--charcoal);
+    letter-spacing:0.04em;
+    margin-bottom:6px;
+  }
+  .details .venue{
+    font-size:14px;
+    font-weight:300;
+    color:#6b6058;
+    letter-spacing:0.02em;
+  }
+
+  .closing{
+    margin-top:30px;
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:17px;
+    color:var(--rose);
+    opacity:0;
+    animation:riseIn 0.9s ease-out forwards;
+    animation-delay:4.6s;
+  }
+
+  @keyframes riseIn{
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* editable-hint badge, purely for the editing screen, hidden when recording if you like */
+  .edit-hint{
+    position:absolute;
+    bottom:14px;
+    right:18px;
+    font-family:'Jost',sans-serif;
+    font-size:10px;
+    letter-spacing:0.06em;
+    color:#b9ab9c;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="frame">
+    <svg class="rings" viewBox="0 0 120 70">
+      <circle class="c1" cx="46" cy="35" r="26"/>
+      <circle class="c2" cx="74" cy="35" r="26"/>
+    </svg>
+
+    <p class="eyebrow">TOGETHER WITH THEIR FAMILIES</p>
+
+    <h1 class="names">Pranav <span class="amp">&amp;</span> Partner</h1>
+
+    <div class="divider"></div>
+
+    <p class="invite-line">request the pleasure of your company as they celebrate their engagement</p>
+
+    <div class="details">
+      <div class="date">Saturday, the 14th of November</div>
+      <div class="venue">Six in the evening &middot; Venue to be shared</div>
+    </div>
+
+    <p class="closing">With love, we hope you'll be there</p>
+  </div>
+  <div class="edit-hint">edit names / date / venue in the code</div>
+</div>
+</body>
+</html>
