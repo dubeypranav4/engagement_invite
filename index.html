@@ -27,6 +27,7 @@
     position:relative;
     width:100%;
     min-height:100vh;
+    min-height:100dvh;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -594,6 +595,12 @@
 </div>
 
 <script>
+  /* Start at the top: stop the browser from restoring a previous scroll
+     position (common on phones after reload / back-forward). */
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  window.scrollTo(0, 0);
+  window.addEventListener("load", function(){ window.scrollTo(0, 0); });
+
   /* ===== Fireflies ===== */
   (function(){
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
