@@ -260,6 +260,101 @@
     stroke-width:1.6;
   }
 
+  /* Video invite */
+  .video-card{
+    position:relative;
+    width:100%;
+    max-width:480px;
+    margin:26px auto 0;
+    aspect-ratio:16 / 9;
+    border:1px solid var(--gold-soft);
+    border-radius:5px;
+    overflow:hidden;
+    background:linear-gradient(135deg,#efe6da,#e4d6c2);
+    opacity:0;
+    animation:riseIn 0.9s ease-out forwards;
+    animation-delay:4.6s;
+  }
+  .video-card video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    cursor:pointer;
+  }
+  .vc-overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    cursor:pointer;
+    transition:opacity 0.4s ease;
+  }
+  .video-card.playing .vc-overlay{ opacity:0; pointer-events:none; }
+  .vc-play{
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    border:1.5px solid var(--gold);
+    background:rgba(250,243,236,0.8);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .vc-play svg{ width:22px; height:22px; fill:var(--charcoal); margin-left:3px; }
+  .vc-overlay span{
+    font-family:'Jost',sans-serif;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:#6b6058;
+  }
+  .vc-controls{
+    position:absolute;
+    right:10px;
+    bottom:10px;
+    display:flex;
+    gap:8px;
+    z-index:2;
+  }
+  .vc-btn{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:0;
+    cursor:pointer;
+    background:rgba(51,44,40,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    backdrop-filter:blur(3px);
+    transition:background 0.2s ease;
+  }
+  .vc-btn:hover{ background:rgba(51,44,40,0.82); }
+  .vc-btn svg{ width:17px; height:17px; fill:none; stroke:#fff; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .vc-hint{
+    position:absolute;
+    left:10px;
+    bottom:16px;
+    z-index:2;
+    font-family:'Jost',sans-serif;
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:#fff;
+    background:rgba(51,44,40,0.5);
+    padding:5px 11px;
+    border-radius:14px;
+    backdrop-filter:blur(3px);
+    opacity:0;
+    transition:opacity 0.4s ease;
+  }
+  .video-card.playing:not(.unmuted) .vc-hint{ opacity:1; }
+
   /* Countdown */
   .countdown{
     display:flex;
@@ -467,6 +562,21 @@
       </button>
     </div>
 
+    <div class="video-card" id="videoCard" aria-label="Video invitation">
+      <video id="inviteVideo" muted loop playsinline preload="none"></video>
+      <div class="vc-overlay" id="vcOverlay">
+        <div class="vc-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        <span id="vcLabel">Watch our video invite</span>
+      </div>
+      <div class="vc-hint" id="vcHint">Tap for sound</div>
+      <div class="vc-controls">
+        <button class="vc-btn" id="vcSound" type="button" aria-label="Unmute"></button>
+        <button class="vc-btn" id="vcFull" type="button" aria-label="Fullscreen">
+          <svg viewBox="0 0 24 24"><path d="M8 4H4v4M16 4h4v4M8 20H4v-4M16 20h4v-4"/></svg>
+        </button>
+      </div>
+    </div>
+
     <p class="closing" id="t_closing">With love, we hope you'll be there</p>
   </div>
 </div>
@@ -517,6 +627,8 @@
       encodeURIComponent("Hotel The Oasis, Delhi - Saharanpur Rd, Rohit Vihar, Saharanpur, Milk Waziuddinpur, Uttar Pradesh 247001"),
     // Paste your Google Drive (or YouTube) video link here. Leave "" to hide the button.
     videoUrl:     "",
+    // Local video invite (lazy-loaded). Leave "" to hide the player.
+    inviteVideo:  "assets/video_invite.mp4",
     // Start time WITH timezone offset (IST is +05:30). End time defaults to +6 hours.
     eventStart:   "2026-10-18T10:00:00+05:30",
     durationHours: 6,
@@ -541,6 +653,8 @@
       cdMins:  "Minutes",
       cdSecs:  "Seconds",
       cdDone:  "The day is finally here",
+      vcLabel: "Watch our video invite",
+      vcHint:  "Tap for sound",
     },
     hi: {
       eyebrow: "अपने परिवार के साथ",
@@ -558,6 +672,8 @@
       cdMins:  "मिनट",
       cdSecs:  "सेकंड",
       cdDone:  "आज वो शुभ दिन है",
+      vcLabel: "हमारा वीडियो निमंत्रण देखें",
+      vcHint:  "आवाज़ के लिए टैप करें",
     },
   };
 
@@ -579,6 +695,8 @@
     setLbl("cdSecsL", s.cdSecs);
     const cdDoneEl = document.querySelector("#countdown .cd-done");
     if (cdDoneEl) cdDoneEl.textContent = s.cdDone;
+    setLbl("vcLabel", s.vcLabel);
+    setLbl("vcHint", s.vcHint);
     document.body.classList.toggle("hi", lang === "hi");
     document.documentElement.lang = lang;
     document.getElementById("langEn").classList.toggle("active", lang !== "hi");
@@ -606,6 +724,73 @@
   } else {
     videoBtn.style.display = "none";
   }
+
+  /* ===== Lazy-loaded video invite (muted; tap for sound; fullscreen) ===== */
+  (function(){
+    const card = document.getElementById("videoCard");
+    if (!card) return;
+    if (!CONFIG.inviteVideo){ card.style.display = "none"; return; }
+    const video = document.getElementById("inviteVideo");
+    const overlay = document.getElementById("vcOverlay");
+    const soundBtn = document.getElementById("vcSound");
+    const fullBtn = document.getElementById("vcFull");
+
+    const speaker = 'M4 9v6h4l5 4V5L8 9H4z';
+    function setSoundIcon(){
+      const on = !video.muted;
+      soundBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="' + speaker + '"/>' +
+        (on ? '<path d="M15.5 9.2a3.4 3.4 0 0 1 0 5.6"/><path d="M17.8 7a7 7 0 0 1 0 10"/>'
+            : '<path d="M16.5 9.5l4 5M20.5 9.5l-4 5"/>') + '</svg>';
+      soundBtn.setAttribute("aria-label", on ? "Mute" : "Unmute");
+      card.classList.toggle("unmuted", on);
+    }
+    setSoundIcon();
+
+    let loaded = false;
+    function ensureLoaded(){
+      if (loaded) return;
+      video.src = CONFIG.inviteVideo;   // download starts only now (preload=none)
+      video.load();
+      loaded = true;
+    }
+    function play(){
+      ensureLoaded();
+      const p = video.play();
+      if (p && p.catch) p.catch(function(){});
+    }
+    video.addEventListener("playing", function(){ card.classList.add("playing"); });
+
+    // Lazy: only fetch + autoplay (muted) once the player scrolls into view.
+    if ("IntersectionObserver" in window){
+      const io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting) play();
+          else if (loaded) video.pause();
+        });
+      }, { threshold: 0.35 });
+      io.observe(card);
+    } else {
+      play();
+    }
+
+    function toggleSound(e){
+      if (e) e.stopPropagation();
+      ensureLoaded();
+      video.muted = !video.muted;
+      if (!video.muted) play();
+      setSoundIcon();
+    }
+    overlay.addEventListener("click", function(){ toggleSound(); });
+    video.addEventListener("click", function(){ toggleSound(); });
+    soundBtn.addEventListener("click", toggleSound);
+    fullBtn.addEventListener("click", function(e){
+      e.stopPropagation();
+      if (video.requestFullscreen) video.requestFullscreen();
+      else if (card.requestFullscreen) card.requestFullscreen();
+      else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen(); // iOS Safari
+    });
+  })();
+  /* ===================================================================== */
 
   // Build & download an .ics calendar event
   function pad(n){ return String(n).padStart(2, "0"); }
