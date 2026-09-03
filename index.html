@@ -33,6 +33,25 @@
     --rose:#B98079;
     --gold:#C9A961;
     --gold-soft:#DCC98F;
+    --muted:#6b6058;
+    --muted2:#8a7f75;
+    --panel:rgba(250,243,236,0.85);
+    --card1:#efe6da;
+    --card2:#e4d6c2;
+    color-scheme:light;
+  }
+  body.dark{
+    --ivory:#1b1714;
+    --charcoal:#F1E7DA;
+    --rose:#d79b93;
+    --gold:#CBAE6A;
+    --gold-soft:#8a763f;
+    --muted:#b7ab9c;
+    --muted2:#948a7d;
+    --panel:rgba(40,34,30,0.82);
+    --card1:#2a2420;
+    --card2:#221d1a;
+    color-scheme:dark;
   }
   *{box-sizing:border-box;}
   html,body{
@@ -42,6 +61,7 @@
     min-height:100%;
     background:var(--ivory);
     overflow-x:hidden;
+    transition:background 0.35s ease, color 0.35s ease;
   }
   .stage{
     position:relative;
@@ -237,13 +257,13 @@
   .details .venue{
     font-size:14px;
     font-weight:300;
-    color:#6b6058;
+    color:var(--muted);
     letter-spacing:0.02em;
   }
   .details .venue-addr{
     font-size:12px;
     font-weight:300;
-    color:#8a7f75;
+    color:var(--muted2);
     letter-spacing:0.02em;
     line-height:1.5;
     max-width:320px;
@@ -300,7 +320,7 @@
     border:1px solid var(--gold-soft);
     border-radius:5px;
     overflow:hidden;
-    background:linear-gradient(135deg,#efe6da,#e4d6c2);
+    background:linear-gradient(135deg,var(--card1),var(--card2));
     opacity:0;
     animation:riseIn 0.9s ease-out forwards;
     animation-delay:4.6s;
@@ -342,7 +362,7 @@
     font-size:12px;
     letter-spacing:0.14em;
     text-transform:uppercase;
-    color:#6b6058;
+    color:var(--muted);
   }
   .vc-controls{
     position:absolute;
@@ -450,7 +470,7 @@
     border:1px solid var(--gold-soft);
     border-radius:20px;
     overflow:hidden;
-    background:rgba(250,243,236,0.85);
+    background:var(--panel);
     backdrop-filter:blur(4px);
   }
   .lang-toggle button{
@@ -458,7 +478,7 @@
     background:transparent;
     cursor:pointer;
     padding:6px 14px;
-    color:#8a7f75;
+    color:var(--muted2);
     font:inherit;
     transition:background 0.2s ease, color 0.2s ease;
   }
@@ -466,6 +486,32 @@
     background:var(--gold);
     color:var(--ivory);
   }
+
+  /* Theme (dark mode) toggle */
+  .theme-toggle{
+    position:fixed;
+    top:16px;
+    left:16px;
+    z-index:10;
+    display:inline-flex;
+    border:1px solid var(--gold-soft);
+    border-radius:20px;
+    overflow:hidden;
+    background:var(--panel);
+    backdrop-filter:blur(4px);
+  }
+  .theme-toggle button{
+    border:0;
+    background:transparent;
+    cursor:pointer;
+    padding:7px 12px;
+    color:var(--muted2);
+    display:flex;
+    align-items:center;
+    transition:color 0.2s ease;
+  }
+  .theme-toggle button:hover{ color:var(--gold); }
+  .theme-toggle svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
 
   /* Devanagari typography when Hindi is active */
   body.hi .eyebrow,
@@ -518,6 +564,9 @@
 </style>
 </head>
 <body>
+<div class="theme-toggle">
+  <button type="button" id="themeBtn" aria-label="Toggle dark mode"></button>
+</div>
 <div class="lang-toggle" role="group" aria-label="Language">
   <button type="button" id="langEn" class="active">EN</button>
   <button type="button" id="langHi">हिं</button>
@@ -620,6 +669,31 @@
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   window.scrollTo(0, 0);
   window.addEventListener("load", function(){ window.scrollTo(0, 0); });
+
+  /* ===== Dark mode toggle ===== */
+  (function(){
+    const btn = document.getElementById("themeBtn");
+    const moon = '<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+    const sun  = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/>' +
+      '<path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>';
+    function setDark(dark){
+      document.body.classList.toggle("dark", dark);
+      btn.innerHTML = dark ? sun : moon;
+      btn.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+      try { localStorage.setItem("inviteTheme", dark ? "dark" : "light"); } catch(e){}
+    }
+    let dark = false;
+    try {
+      const saved = localStorage.getItem("inviteTheme");
+      if (saved) dark = (saved === "dark");
+      else dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    } catch(e){}
+    setDark(dark);
+    btn.addEventListener("click", function(){
+      setDark(!document.body.classList.contains("dark"));
+    });
+  })();
+  /* ============================ */
 
   /* ===== Fireflies ===== */
   (function(){
