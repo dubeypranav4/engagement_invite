@@ -95,8 +95,8 @@
   /* Ring sketch */
   .rings{
     width:120px;
-    height:70px;
-    margin:0 auto 18px;
+    height:90px;
+    margin:0 auto 14px;
     display:block;
   }
   .rings circle{
@@ -112,6 +112,36 @@
 
   @keyframes draw{
     to{ stroke-dashoffset:0; }
+  }
+
+  /* Diamonds forming on the rings */
+  .rings .gem{
+    opacity:0;
+    transform-box:fill-box;
+    transform-origin:50% 100%;
+    animation:gemIn 0.7s ease-out forwards;
+    animation-delay:2s;
+  }
+  .rings .gem.g2{ animation-delay:2.25s; }
+  .rings .gem-body{
+    fill:url(#ringGem);
+    stroke:var(--gold);
+    stroke-width:1.2;
+    stroke-linejoin:round;
+  }
+  .rings .gem-facets path{
+    fill:none;
+    stroke:var(--gold);
+    stroke-width:0.7;
+    opacity:0.85;
+  }
+  @keyframes gemIn{
+    0%{ opacity:0; transform:scale(0.2); }
+    70%{ opacity:1; transform:scale(1.15); }
+    100%{ opacity:1; transform:scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .rings .gem{ opacity:1; transform:none; animation:none; }
   }
 
   .eyebrow{
@@ -367,9 +397,36 @@
 </div>
 <div class="stage">
   <div class="frame">
-    <svg class="rings" viewBox="0 0 120 70">
+    <svg class="rings" viewBox="0 -20 120 90">
+      <defs>
+        <linearGradient id="ringGem" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#FFFDF8"/>
+          <stop offset="55%" stop-color="#DCC98F" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#C9A961" stop-opacity="0.9"/>
+        </linearGradient>
+      </defs>
       <circle class="c1" cx="46" cy="35" r="26"/>
       <circle class="c2" cx="74" cy="35" r="26"/>
+      <g transform="translate(46 8)"><g class="gem">
+        <path class="gem-body" d="M -5 -12 L 5 -12 L 8 -6 L 0 0 L -8 -6 Z"/>
+        <g class="gem-facets">
+          <path d="M -8 -6 L 8 -6"/>
+          <path d="M 0 -12 L -8 -6"/>
+          <path d="M 0 -12 L 8 -6"/>
+          <path d="M -5 -12 L 0 0"/>
+          <path d="M 5 -12 L 0 0"/>
+        </g>
+      </g></g>
+      <g transform="translate(74 8)"><g class="gem g2">
+        <path class="gem-body" d="M -5 -12 L 5 -12 L 8 -6 L 0 0 L -8 -6 Z"/>
+        <g class="gem-facets">
+          <path d="M -8 -6 L 8 -6"/>
+          <path d="M 0 -12 L -8 -6"/>
+          <path d="M 0 -12 L 8 -6"/>
+          <path d="M -5 -12 L 0 0"/>
+          <path d="M 5 -12 L 0 0"/>
+        </g>
+      </g></g>
     </svg>
 
     <p class="eyebrow" id="t_eyebrow">TOGETHER WITH THEIR FAMILIES</p>
