@@ -271,26 +271,6 @@
     stroke-width:1.6;
   }
 
-  /* Embedded venue map */
-  .map-wrap{
-    margin:24px auto 0;
-    max-width:440px;
-    border:1px solid var(--gold-soft);
-    border-radius:3px;
-    overflow:hidden;
-    line-height:0;
-    opacity:0;
-    animation:riseIn 0.9s ease-out forwards;
-    animation-delay:4.6s;
-  }
-  .map-wrap iframe{
-    width:100%;
-    height:190px;
-    border:0;
-    display:block;
-    filter:saturate(0.9);
-  }
-
   /* Countdown */
   .countdown{
     display:flex;
@@ -471,8 +451,6 @@
       </button>
     </div>
 
-    <div class="map-wrap" id="mapWrap"></div>
-
     <p class="closing" id="t_closing">With love, we hope you'll be there</p>
   </div>
 </div>
@@ -600,8 +578,6 @@
     // Directions link — routes from each guest's own location to the full venue address
     directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=" +
       encodeURIComponent("Hotel The Oasis, Delhi - Saharanpur Rd, Rohit Vihar, Saharanpur, Milk Waziuddinpur, Uttar Pradesh 247001"),
-    // Embedded map iframe src
-    mapEmbedUrl:  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3457.585224305666!2d77.5351508!3d29.933840999999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390e9534caee2aa5%3A0xd54b84d4c5c085b0!2sHotel%20The%20Oasis!5e0!3m2!1sen!2sin!4v1788435641464!5m2!1sen!2sin",
     // Paste your Google Drive (or YouTube) video link here. Leave "" to hide the button.
     videoUrl:     "",
     // Start time WITH timezone offset (IST is +05:30). End time defaults to +6 hours.
@@ -694,19 +670,6 @@
     videoBtn.style.display = "none";
   }
 
-  // Embedded venue map
-  if (CONFIG.mapEmbedUrl) {
-    const iframe = document.createElement("iframe");
-    iframe.src = CONFIG.mapEmbedUrl;
-    iframe.loading = "lazy";
-    iframe.allowFullscreen = true;
-    iframe.referrerPolicy = "strict-origin-when-cross-origin";
-    iframe.title = CONFIG.venueName;
-    document.getElementById("mapWrap").appendChild(iframe);
-  } else {
-    document.getElementById("mapWrap").style.display = "none";
-  }
-
   // Build & download an .ics calendar event
   function pad(n){ return String(n).padStart(2, "0"); }
   function toICSDate(d){
@@ -720,16 +683,22 @@
   const eventEndDate = new Date(eventStartDate.getTime() + CONFIG.durationHours * 3600 * 1000);
   const eventLocation = CONFIG.venueName + ", " + CONFIG.venueAddress;
 
-  function openGoogleCalendar(){
-    const params = new URLSearchParams({
-      action: "TEMPLATE",
-      text: CONFIG.eventTitle,
-      dates: toICSDate(eventStartDate) + "/" + toICSDate(eventEndDate),
-      details: "Engagement celebration",
-      location: eventLocation,
-    });
-    window.open("https://calendar.google.com/calendar/render?" + params.toString(),
-      "_blank", "noopener");
+  const gcalQuery = new URLSearchParams({
+    action: "TEMPLATE",
+    text: CONFIG.eventTitle,
+    dates: toICSDate(eventStartDate) + "/" + toICSDate(eventEndDate),
+    details: "Engagement celebration",
+    location: eventLocation,
+  }).toString();
+  const gcalWebUrl = "https://calendar.google.com/calendar/render?" + gcalQuery;
+
+  // Android: fire an intent straight into the Google Calendar app, with a
+  // web fallback if the app isn't installed.
+  function openAndroidCalendar(){
+    const intentUrl = "intent://calendar.google.com/calendar/render?" + gcalQuery
+      + "#Intent;scheme=https;package=com.google.android.calendar;"
+      + "S.browser_fallback_url=" + encodeURIComponent(gcalWebUrl) + ";end";
+    window.location.href = intentUrl;
   }
 
   function downloadICS(){
@@ -762,13 +731,18 @@
     URL.revokeObjectURL(url);
   }
 
-  // Apple devices integrate best with an .ics download (Apple Calendar);
-  // everyone else goes straight to Google Calendar.
-  const isApple = /iP(hone|ad|od)/.test(navigator.platform) ||
-    /iP(hone|ad|od)|Macintosh/.test(navigator.userAgent) ||
+  // Route to the right calendar per platform:
+  //  - Android  -> intent into the Google Calendar app
+  //  - iOS/macOS-> .ics handoff to Apple Calendar
+  //  - anything else / unknown -> .ics download
+  const ua = navigator.userAgent || "";
+  const isAndroid = /Android/i.test(ua);
+  const isApple = /iP(hone|ad|od)/.test(ua) ||
+    /Macintosh/.test(ua) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   document.getElementById("calBtn").addEventListener("click", function(){
-    if (isApple) downloadICS(); else openGoogleCalendar();
+    if (isAndroid) openAndroidCalendar();
+    else downloadICS(); // Apple + everything else
   });
 
   /* ===== Countdown to the event ===== */
