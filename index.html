@@ -92,47 +92,6 @@
     .fireflies{ display:none; }
   }
 
-  /* Border vines */
-  .vines{
-    position:fixed;
-    inset:0;
-    width:100vw;
-    height:100vh;
-    z-index:0;
-    pointer-events:none;
-    overflow:hidden;
-  }
-  .vines .stem{
-    fill:none;
-    stroke:#4b7f3a;
-    stroke-width:2;
-    stroke-linecap:round;
-    stroke-linejoin:round;
-    stroke-dasharray:1;
-    stroke-dashoffset:1;
-    animation:vineDraw 5s ease-out forwards;
-    animation-delay:0.2s;
-  }
-  .vines .bloom{
-    transform-box:fill-box;
-    transform-origin:center;
-    opacity:0;
-    animation:bloom 0.7s ease-out forwards;
-  }
-  .vines .leaf-blade{ fill:#5b9e4b; }
-  .vines .leaf-blade.alt{ fill:#3f7a32; }
-  .vines .leaf-vein{ fill:none; stroke:#2f5a25; stroke-width:0.6; }
-  .vines .flower-center{ fill:#f4c948; }
-  @keyframes vineDraw{ to{ stroke-dashoffset:0; } }
-  @keyframes bloom{
-    0%{ opacity:0; transform:scale(0); }
-    70%{ opacity:1; transform:scale(1.15); }
-    100%{ opacity:1; transform:scale(1); }
-  }
-  @media (prefers-reduced-motion: reduce){
-    .vines{ display:none; }
-  }
-
   /* Ring sketch */
   .rings{
     width:120px;
@@ -490,85 +449,6 @@
     document.body.insertBefore(container, document.body.firstChild);
   })();
   /* ===================== */
-
-  /* ===== Border vines with leaves & flowers ===== */
-  (function(){
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const NS = "http://www.w3.org/2000/svg";
-    const TAU = Math.PI * 2;
-    const flowerColors = ["#e0729b","#f2b134","#ef6f53","#c98bd0","#6fb3e0","#f5efe0","#e85d75"];
-    const rnd = (a, b) => Math.random() * (b - a) + a;
-    const make = (tag, attrs) => {
-      const el = document.createElementNS(NS, tag);
-      for (const k in attrs) el.setAttribute(k, attrs[k]);
-      return el;
-    };
-    function buildLeaf(alt){
-      const g = make("g", { transform: "scale(" + rnd(0.85, 1.35).toFixed(2) + ")" });
-      g.appendChild(make("path", { class: "leaf-blade" + (alt ? " alt" : ""),
-        d: "M0 0 C 6 -10 20 -12 28 -2 C 20 6 6 5 0 0 Z" }));
-      g.appendChild(make("path", { class: "leaf-vein", d: "M3 0 L 24 -1" }));
-      return g;
-    }
-    function buildFlower(){
-      const g = make("g", { transform: "translate(15 0) scale(" + rnd(0.8, 1.3).toFixed(2) + ")" });
-      const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
-      for (let p = 0; p < 5; p++){
-        g.appendChild(make("ellipse", { cx: 0, cy: -5, rx: 3.2, ry: 5.2,
-          fill: color, transform: "rotate(" + (p * 72) + ")" }));
-      }
-      g.appendChild(make("circle", { class: "flower-center", cx: 0, cy: 0, r: 2.6 }));
-      return g;
-    }
-    let container, resizeTimer;
-    function build(){
-      if (container) container.remove();
-      const W = window.innerWidth, H = window.innerHeight;
-      container = make("svg", { class: "vines", viewBox: "0 0 " + W + " " + H,
-        preserveAspectRatio: "none" });
-      container.setAttribute("aria-hidden", "true");
-      const margin = 22, amp = 11, wave = 130, drawDur = 5, spacing = 50;
-      const edges = [
-        { type: "h", fixed: margin,     ang: 90  },   // top   -> leaves point down
-        { type: "h", fixed: H - margin, ang: -90 },   // bottom-> up
-        { type: "v", fixed: margin,     ang: 0   },   // left  -> right
-        { type: "v", fixed: W - margin, ang: 180 },   // right -> left
-      ];
-      edges.forEach(e => {
-        const len = e.type === "h" ? W : H;
-        const at = s => {
-          const off = amp * Math.sin(s / wave * TAU);
-          return e.type === "h" ? { x: s, y: e.fixed + off } : { x: e.fixed + off, y: s };
-        };
-        const N = Math.max(24, Math.floor(len / 8));
-        let d = "";
-        for (let i = 0; i <= N; i++){
-          const p = at((i / N) * len);
-          d += (i === 0 ? "M" : "L") + p.x.toFixed(1) + " " + p.y.toFixed(1) + " ";
-        }
-        container.appendChild(make("path", { class: "stem", d: d, pathLength: "1" }));
-        const count = Math.floor(len / spacing);
-        for (let j = 1; j < count; j++){
-          const s = j * spacing, t = s / len, p = at(s);
-          const ang = e.ang + rnd(-22, 22);
-          const outer = make("g", { transform: "translate(" + p.x.toFixed(1) + " "
-            + p.y.toFixed(1) + ") rotate(" + ang.toFixed(1) + ")" });
-          const inner = make("g", { class: "bloom" });
-          inner.style.animationDelay = (0.3 + t * (drawDur - 0.6)).toFixed(2) + "s";
-          inner.appendChild(j % 3 === 0 ? buildFlower() : buildLeaf(j % 2 === 0));
-          outer.appendChild(inner);
-          container.appendChild(outer);
-        }
-      });
-      document.body.insertBefore(container, document.body.firstChild);
-    }
-    build();
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(build, 300);
-    });
-  })();
-  /* ============================================== */
 
   /* ===== Configure your event here ===== */
   const CONFIG = {
