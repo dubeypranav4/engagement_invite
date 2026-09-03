@@ -351,9 +351,11 @@
     border-radius:14px;
     backdrop-filter:blur(3px);
     opacity:0;
+    cursor:pointer;
+    pointer-events:none;
     transition:opacity 0.4s ease;
   }
-  .video-card.playing:not(.unmuted) .vc-hint{ opacity:1; }
+  .video-card.playing:not(.unmuted) .vc-hint{ opacity:1; pointer-events:auto; }
 
   /* Countdown */
   .countdown{
@@ -734,6 +736,7 @@
     const overlay = document.getElementById("vcOverlay");
     const soundBtn = document.getElementById("vcSound");
     const fullBtn = document.getElementById("vcFull");
+    const hint = document.getElementById("vcHint");
 
     const speaker = 'M4 9v6h4l5 4V5L8 9H4z';
     function setSoundIcon(){
@@ -783,6 +786,7 @@
     overlay.addEventListener("click", function(){ toggleSound(); });
     video.addEventListener("click", function(){ toggleSound(); });
     soundBtn.addEventListener("click", toggleSound);
+    hint.addEventListener("click", toggleSound);
     fullBtn.addEventListener("click", function(e){
       e.stopPropagation();
       if (video.requestFullscreen) video.requestFullscreen();
