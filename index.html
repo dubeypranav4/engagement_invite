@@ -86,7 +86,7 @@
   }
   @keyframes flash{
     0%, 30%, 100%{ opacity:0; box-shadow:0 0 0vw 0vw #e8b84b; }
-    5%{ opacity:1; box-shadow:0 0 1.6vw 0.35vw #e8b84b; }
+    5%{ opacity:1; box-shadow:0 0 2.4vw 0.55vw #f0be4f; }
   }
   @media (prefers-reduced-motion: reduce){
     .fireflies{ display:none; }
@@ -440,7 +440,7 @@
   /* ===== Fireflies ===== */
   (function(){
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const N = 16;
+    const N = 24;
     const rnd = (min, max) => Math.random() * (max - min) + min;
     const container = document.createElement("div");
     container.className = "fireflies";
