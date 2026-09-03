@@ -219,6 +219,15 @@
     color:#6b6058;
     letter-spacing:0.02em;
   }
+  .details .venue-addr{
+    font-size:12px;
+    font-weight:300;
+    color:#8a7f75;
+    letter-spacing:0.02em;
+    line-height:1.5;
+    max-width:320px;
+    margin:5px auto 0;
+  }
 
   .actions{
     display:flex;
@@ -537,6 +546,7 @@
     <div class="details">
       <div class="date" id="t_date">Sunday, the 18th of October</div>
       <div class="venue" id="venueLine">Ten in the morning</div>
+      <div class="venue-addr" id="venueAddr"></div>
     </div>
 
     <div class="countdown" id="countdown">
@@ -686,6 +696,7 @@
     document.getElementById("t_invite").textContent = s.invite;
     document.getElementById("t_date").textContent = s.date;
     document.getElementById("venueLine").innerHTML = s.time + " &middot; " + s.venue;
+    document.getElementById("venueAddr").textContent = CONFIG.venueAddress;
     document.getElementById("t_closing").textContent = s.closing;
     document.querySelector("#dirBtn .lbl").textContent = s.dir;
     document.querySelector("#videoBtn .lbl").textContent = s.video;
